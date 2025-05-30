@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const TeacherController = require("../controllers/teacherController");
 
-// Routes cho giáo viên
 router.get("/", TeacherController.getAllTeachers);
 router.get("/:id", TeacherController.getTeacherById);
 router.post("/", TeacherController.createTeacher);

@@ -1,59 +1,6 @@
 const AvailabilityModel = require("../models/availabilityModel");
 
 class AvailabilityController {
-  // Lấy lịch rảnh của giáo viên
-  static getTeacherAvailability(req, res) {
-    const teacherId = req.params.teacherId;
-
-    AvailabilityModel.getTeacherAvailability(teacherId, (err, availability) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      return res.status(200).json({ data: availability });
-    });
-  }
-
-  // Thêm lịch rảnh cho giáo viên
-  static addAvailability(req, res) {
-    const availabilityData = req.body;
-
-    // Validate input
-    if (
-      !availabilityData.teacher_id ||
-      !availabilityData.day_of_week ||
-      !availabilityData.start_time ||
-      !availabilityData.end_time
-    ) {
-      return res.status(400).json({ message: "Thiếu thông tin cần thiết" });
-    }
-
-    AvailabilityModel.addAvailability(availabilityData, (err, availability) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      return res.status(201).json({
-        message: "Thêm lịch rảnh thành công",
-        data: availability,
-      });
-    });
-  }
-
-  // Xóa lịch rảnh
-  static deleteAvailability(req, res) {
-    const id = req.params.id;
-
-    AvailabilityModel.deleteAvailability(id, (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      return res.status(200).json({
-        message: "Xóa lịch rảnh thành công",
-        data: result,
-      });
-    });
-  }
-
-  // Lấy lịch dạy của giáo viên
   static getTeacherAssignments(req, res) {
     const teacherId = req.params.teacherId;
 
@@ -65,29 +12,75 @@ class AvailabilityController {
     });
   }
 
-  // Thêm lịch dạy cho giáo viên
+  static getSubjects(req, res) {
+    AvailabilityModel.getSubjects((err, subjects) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      return res.status(200).json({ data: subjects });
+    });
+  }
+
+  static getClassesBySubject(req, res) {
+    const subject = req.params.subject;
+
+    AvailabilityModel.getClassesBySubject(subject, (err, classes) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      return res.status(200).json({ data: classes });
+    });
+  }
+
+  static getRegisteredClassesBySubject(req, res) {
+    const subject = req.params.subject;
+
+    AvailabilityModel.getRegisteredClassesBySubject(subject, (err, classes) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      return res.status(200).json({ data: classes });
+    });
+  }
+
+  static getClassDetailsById(req, res) {
+    const id = req.params.id;
+
+    AvailabilityModel.getClassById(id, (err, classData) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (!classData) {
+        return res.status(404).json({ error: "Không tìm thấy lớp học" });
+      }
+      return res.status(200).json({ data: classData });
+    });
+  }
+
   static createAssignment(req, res) {
     const assignmentData = req.body;
 
-    // Validate input
-    if (
-      !assignmentData.teacher_id ||
-      !assignmentData.class_name ||
-      !assignmentData.date ||
-      !assignmentData.start_time ||
-      !assignmentData.end_time
-    ) {
+    if (!assignmentData.teacher_id || !assignmentData.class_id) {
       return res.status(400).json({ message: "Thiếu thông tin cần thiết" });
     }
 
     AvailabilityModel.createAssignment(assignmentData, (err, assignment) => {
       if (err) {
-        return res.status(500).json({ error: err.message });
+        return res.status(400).json({ error: err.message });
       }
       return res.status(201).json({
-        message: "Thêm lịch dạy thành công",
+        message: "Đăng ký lịch dạy thành công",
         data: assignment,
       });
+    });
+  }
+
+  static getAllAssignments(req, res) {
+    AvailabilityModel.getAllAssignments((err, assignments) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      return res.status(200).json({ data: assignments });
     });
   }
 }

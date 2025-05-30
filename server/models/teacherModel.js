@@ -1,7 +1,6 @@
 const db = require("../config/database");
 
 class TeacherModel {
-  // Lấy tất cả giáo viên
   static getAllTeachers(callback) {
     const sql = "SELECT * FROM teachers";
     db.all(sql, [], (err, rows) => {
@@ -12,7 +11,6 @@ class TeacherModel {
     });
   }
 
-  // Lấy thông tin một giáo viên theo ID
   static getTeacherById(id, callback) {
     const sql = "SELECT * FROM teachers WHERE id = ?";
     db.get(sql, [id], (err, row) => {
@@ -23,7 +21,6 @@ class TeacherModel {
     });
   }
 
-  // Thêm giáo viên mới
   static createTeacher(teacherData, callback) {
     const { fullName, email, phone, specialization, hourlyRate } = teacherData;
     const sql = `INSERT INTO teachers 
@@ -42,7 +39,6 @@ class TeacherModel {
     );
   }
 
-  // Cập nhật thông tin giáo viên
   static updateTeacher(id, teacherData, callback) {
     const { fullName, email, phone, specialization, hourlyRate, status } =
       teacherData;
@@ -67,7 +63,6 @@ class TeacherModel {
     );
   }
 
-  // Xóa giáo viên
   static deleteTeacher(id, callback) {
     const sql = "DELETE FROM teachers WHERE id = ?";
     db.run(sql, [id], (err) => {

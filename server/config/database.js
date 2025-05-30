@@ -1,7 +1,6 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
-// Tạo kết nối đến file database
 const dbPath = path.resolve(__dirname, "../database/language_center.db");
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -12,10 +11,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-// Khởi tạo cấu trúc database
 function initDb() {
   db.serialize(() => {
-    // Bảng Giáo viên
     db.run(`CREATE TABLE IF NOT EXISTS teachers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       fullName TEXT NOT NULL,
@@ -27,53 +24,36 @@ function initDb() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    // Bảng lịch rảnh của giáo viên
-    db.run(`CREATE TABLE IF NOT EXISTS teacher_availability (
+    db.run(`CREATE TABLE IF NOT EXISTS classes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      teacher_id INTEGER,
-      day_of_week INTEGER, 
+      class_name TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      start_date TEXT,
+      end_date TEXT,
       start_time TEXT,
       end_time TEXT,
-      FOREIGN KEY (teacher_id) REFERENCES teachers (id)
+      UNIQUE(class_name, subject)
     )`);
 
-    // Bảng phân công giảng dạy
     db.run(`CREATE TABLE IF NOT EXISTS teaching_assignments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       teacher_id INTEGER,
-      class_name TEXT,
-      subject TEXT,
-      date TEXT,
-      start_time TEXT,
-      end_time TEXT,
-      status TEXT DEFAULT 'scheduled',
-      FOREIGN KEY (teacher_id) REFERENCES teachers (id)
+      class_id INTEGER,
+      FOREIGN KEY (teacher_id) REFERENCES teachers (id),
+      FOREIGN KEY (class_id) REFERENCES classes (id)
     )`);
 
-    // Bảng chấm công
-    db.run(`CREATE TABLE IF NOT EXISTS attendance (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      assignment_id INTEGER,
-      teacher_id INTEGER,
-      date TEXT,
-      status TEXT DEFAULT 'present',
-      notes TEXT,
-      FOREIGN KEY (assignment_id) REFERENCES teaching_assignments (id),
-      FOREIGN KEY (teacher_id) REFERENCES teachers (id)
-    )`);
-
-    // Bảng thanh toán lương
-    db.run(`CREATE TABLE IF NOT EXISTS payroll (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      teacher_id INTEGER,
-      period_start TEXT,
-      period_end TEXT,
-      total_hours REAL,
-      amount REAL,
-      status TEXT DEFAULT 'pending',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (teacher_id) REFERENCES teachers (id)
-    )`);
+    db.run(`INSERT OR IGNORE INTO classes (class_name, subject, start_date, end_date, start_time, end_time) VALUES
+      ('A1', 'Tiếng Anh', '2025-06-02', '2025-06-25', '08:00', '10:00'),
+      ('A2', 'Tiếng Anh', '2025-06-03', '2025-06-26', '10:30', '12:30'),
+      ('B1', 'Tiếng Anh', '2025-06-02', '2025-06-25', '14:00', '16:00'),
+      ('N5', 'Tiếng Nhật', '2025-06-03', '2025-06-26', '08:00', '10:00'),
+      ('N4', 'Tiếng Nhật', '2025-06-02', '2025-06-25', '10:30', '12:30'),
+      ('N3', 'Tiếng Nhật', '2025-06-03', '2025-06-26', '14:00', '16:00'),
+      ('HSK1', 'Tiếng Trung', '2025-06-02', '2025-06-25', '16:30', '18:30'),
+      ('HSK2', 'Tiếng Trung', '2025-06-03', '2025-06-26', '16:30', '18:30'),
+      ('HSK3', 'Tiếng Trung', '2025-06-02', '2025-06-25', '19:00', '21:00')
+    `);
 
     console.log("Đã khởi tạo cấu trúc database");
   });
